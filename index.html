@@ -63,46 +63,39 @@ function face(n,c){let f=document.createElement('div');f.className='face';f.styl
 function makeDice(){document.querySelectorAll('.die').forEach(x=>x.remove());let out=[];colors.forEach(c=>{for(let i=0;i<(cfg[c.id]||0);i++){let d=document.createElement('div');d.className='die';d.dataset.color=c.id;d.appendChild(face(1,c));board.appendChild(d);out.push(d)}});return out}
 function roll(){
  let dice=makeDice(), total=0, w=innerWidth, h=board.clientHeight;
- const SIZE=86, HALF=SIZE/2, ROT_RADIUS=Math.sqrt(2)*HALF;
- const GAP=18, MIN_DIST=2*ROT_RADIUS+GAP, MARGIN=ROT_RADIUS+10;
- const placed=[];
- // Rotation-safe clear zone around the total.
- const sumZone={x1:w*.25,x2:w*.75,y1:h*.34,y2:h*.64};
+ const SIZE=86;
 
- function blocked(cx,cy){
-   if(cx+ROT_RADIUS>sumZone.x1 && cx-ROT_RADIUS<sumZone.x2 &&
-      cy+ROT_RADIUS>sumZone.y1 && cy-ROT_RADIUS<sumZone.y2) return true;
-   return placed.some(p => Math.hypot(cx-p.cx,cy-p.cy) < MIN_DIST);
+ // Six separate zones around the total. With max. 6 dice they can never overlap.
+ let slots=[
+   {x:.18,y:.16},{x:.50,y:.16},{x:.82,y:.16},
+   {x:.18,y:.76},{x:.50,y:.82},{x:.82,y:.76}
+ ];
+
+ // Randomize which die lands in which zone.
+ for(let i=slots.length-1;i>0;i--){
+   let j=Math.floor(Math.random()*(i+1));
+   [slots[i],slots[j]]=[slots[j],slots[i]];
  }
 
- dice.forEach(d=>{
+ dice.forEach((d,i)=>{
    let c=colors.find(x=>x.id===d.dataset.color),
        n=1+Math.floor(Math.random()*6);
    total+=n;
    d.innerHTML='';
    d.appendChild(face(n,c));
 
-   let cx=w/2, cy=h/2, found=false;
-   for(let tries=0;tries<1200;tries++){
-     let tx=MARGIN+Math.random()*Math.max(1,w-2*MARGIN);
-     let ty=MARGIN+Math.random()*Math.max(1,h-2*MARGIN-20);
-     if(!blocked(tx,ty)){cx=tx;cy=ty;found=true;break;}
-   }
+   let s=slots[i % slots.length];
+   // Small random movement inside each safe zone.
+   let jitterX=(Math.random()-.5)*24;
+   let jitterY=(Math.random()-.5)*24;
+   let x=Math.max(12,Math.min(w-SIZE-12,w*s.x-SIZE/2+jitterX));
+   let y=Math.max(18,Math.min(h-SIZE-35,h*s.y-SIZE/2+jitterY));
+   let a=-28+Math.random()*56;
 
-   // Fallback scan; intended maximum is six dice.
-   if(!found){
-     outer:
-     for(let ty=MARGIN;ty<=h-MARGIN;ty+=MIN_DIST)
-       for(let tx=MARGIN;tx<=w-MARGIN;tx+=MIN_DIST)
-         if(!blocked(tx,ty)){cx=tx;cy=ty;found=true;break outer;}
-   }
-
-   placed.push({cx,cy});
-   let x=cx-HALF, y=cy-HALF, a=Math.floor(Math.random()*360);
    d.style.left=x+'px';
    d.style.top=y+'px';
-   d.style.transform=`rotate(${a}deg) scale(.9)`;
-   requestAnimationFrame(()=>d.style.transform=`rotate(${a+360}deg) scale(1)`);
+   d.style.transform=`rotate(${a-180}deg) scale(.88)`;
+   requestAnimationFrame(()=>d.style.transform=`rotate(${a}deg) scale(1)`);
  });
  sum.textContent=total;
  if(cfg.vibrate&&navigator.vibrate)navigator.vibrate(35)
