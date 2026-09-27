@@ -13,7 +13,7 @@ body{background:#8a5a32;background-image:linear-gradient(90deg,rgba(255,255,255,
 .icon{border:0;background:rgba(0,0,0,.16);color:#fff;border-radius:14px;width:48px;height:48px;font-size:25px}
 #board{position:absolute;inset:75px 0 0;touch-action:manipulation}
 #sum{position:absolute;left:50%;top:48%;transform:translate(-50%,-50%);font-size:86px;font-weight:300;text-shadow:0 2px 5px #0008;pointer-events:none}
-.die{position:absolute;width:74px;height:74px;border-radius:15px;box-shadow:0 7px 12px #0007,inset 0 2px 3px #fff7;transition:left .38s cubic-bezier(.2,.8,.2,1),top .38s cubic-bezier(.2,.8,.2,1),transform .38s}
+.die{position:absolute;width:86px;height:86px;border-radius:15px;box-shadow:0 7px 12px #0007,inset 0 2px 3px #fff7;transition:left .38s cubic-bezier(.2,.8,.2,1),top .38s cubic-bezier(.2,.8,.2,1),transform .38s}
 .face{width:100%;height:100%;position:relative;border-radius:15px}
 .pip{position:absolute;width:13px;height:13px;border-radius:50%;background:#222;transform:translate(-50%,-50%);box-shadow:inset 0 1px 2px #0008}
 #settings{position:fixed;inset:0;background:#f2f2f7;color:#111;z-index:10;display:none;overflow:auto;padding-bottom:30px}
@@ -63,10 +63,26 @@ function face(n,c){let f=document.createElement('div');f.className='face';f.styl
 function makeDice(){document.querySelectorAll('.die').forEach(x=>x.remove());let out=[];colors.forEach(c=>{for(let i=0;i<(cfg[c.id]||0);i++){let d=document.createElement('div');d.className='die';d.dataset.color=c.id;d.appendChild(face(1,c));board.appendChild(d);out.push(d)}});return out}
 function roll(){
  let dice=makeDice(), total=0,w=innerWidth,h=board.clientHeight;
- dice.forEach((d,i)=>{let c=colors.find(x=>x.id===d.dataset.color),n=1+Math.floor(Math.random()*6);total+=n;d.innerHTML='';d.appendChild(face(n,c));
- let angle=Math.floor(Math.random()*360), margin=16, dw=74,dh=74,x,y,tries=0;
- do{x=margin+Math.random()*Math.max(1,w-dw-2*margin);y=20+Math.random()*Math.max(1,h-dh-50);tries++}while(x>w*.32&&x<w*.68&&y>h*.32&&y<h*.67&&tries<20);
- d.style.left=x+'px';d.style.top=y+'px';d.style.transform=`rotate(${angle}deg) scale(.9)`;requestAnimationFrame(()=>d.style.transform=`rotate(${angle+360}deg) scale(1)`)});
+ const SIZE=86,GAP=18,MARGIN=14,placed=[];
+ const sumZone={x1:w*.27,x2:w*.73,y1:h*.36,y2:h*.62};
+ function blocked(x,y){
+   if(x<sumZone.x2 && x+SIZE>sumZone.x1 && y<sumZone.y2 && y+SIZE>sumZone.y1)return true;
+   return placed.some(p=>x<p.x+SIZE+GAP && x+SIZE+GAP>p.x && y<p.y+SIZE+GAP && y+SIZE+GAP>p.y);
+ }
+ dice.forEach(d=>{
+   let c=colors.find(x=>x.id===d.dataset.color),n=1+Math.floor(Math.random()*6);total+=n;
+   d.innerHTML='';d.appendChild(face(n,c));
+   let x=MARGIN,y=20,found=false;
+   for(let tries=0;tries<600;tries++){
+     let tx=MARGIN+Math.random()*Math.max(1,w-SIZE-2*MARGIN);
+     let ty=20+Math.random()*Math.max(1,h-SIZE-45);
+     if(!blocked(tx,ty)){x=tx;y=ty;found=true;break}
+   }
+   if(!found){outer:for(let ty=20;ty<=h-SIZE-45;ty+=SIZE+GAP)for(let tx=MARGIN;tx<=w-SIZE-MARGIN;tx+=SIZE+GAP)if(!blocked(tx,ty)){x=tx;y=ty;break outer}}
+   placed.push({x,y});
+   let a=Math.floor(Math.random()*360);d.style.left=x+'px';d.style.top=y+'px';d.style.transform=`rotate(${a}deg) scale(.9)`;
+   requestAnimationFrame(()=>d.style.transform=`rotate(${a+360}deg) scale(1)`);
+ });
  sum.textContent=total;if(cfg.vibrate&&navigator.vibrate)navigator.vibrate(35)
 }
 buildRows();roll();
