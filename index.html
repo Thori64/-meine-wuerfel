@@ -62,28 +62,50 @@ const pos={1:[[50,50]],2:[[28,28],[72,72]],3:[[28,28],[50,50],[72,72]],4:[[28,28
 function face(n,c){let f=document.createElement('div');f.className='face';f.style.background=c.hex;pos[n].forEach(([x,y])=>{let p=document.createElement('i');p.className='pip';p.style.left=x+'%';p.style.top=y+'%';p.style.background=c.pip;f.appendChild(p)});return f}
 function makeDice(){document.querySelectorAll('.die').forEach(x=>x.remove());let out=[];colors.forEach(c=>{for(let i=0;i<(cfg[c.id]||0);i++){let d=document.createElement('div');d.className='die';d.dataset.color=c.id;d.appendChild(face(1,c));board.appendChild(d);out.push(d)}});return out}
 function roll(){
- let dice=makeDice(), total=0,w=innerWidth,h=board.clientHeight;
- const SIZE=86,GAP=18,MARGIN=14,placed=[];
- const sumZone={x1:w*.27,x2:w*.73,y1:h*.36,y2:h*.62};
- function blocked(x,y){
-   if(x<sumZone.x2 && x+SIZE>sumZone.x1 && y<sumZone.y2 && y+SIZE>sumZone.y1)return true;
-   return placed.some(p=>x<p.x+SIZE+GAP && x+SIZE+GAP>p.x && y<p.y+SIZE+GAP && y+SIZE+GAP>p.y);
+ let dice=makeDice(), total=0, w=innerWidth, h=board.clientHeight;
+ const SIZE=86, HALF=SIZE/2, ROT_RADIUS=Math.sqrt(2)*HALF;
+ const GAP=18, MIN_DIST=2*ROT_RADIUS+GAP, MARGIN=ROT_RADIUS+10;
+ const placed=[];
+ // Rotation-safe clear zone around the total.
+ const sumZone={x1:w*.25,x2:w*.75,y1:h*.34,y2:h*.64};
+
+ function blocked(cx,cy){
+   if(cx+ROT_RADIUS>sumZone.x1 && cx-ROT_RADIUS<sumZone.x2 &&
+      cy+ROT_RADIUS>sumZone.y1 && cy-ROT_RADIUS<sumZone.y2) return true;
+   return placed.some(p => Math.hypot(cx-p.cx,cy-p.cy) < MIN_DIST);
  }
+
  dice.forEach(d=>{
-   let c=colors.find(x=>x.id===d.dataset.color),n=1+Math.floor(Math.random()*6);total+=n;
-   d.innerHTML='';d.appendChild(face(n,c));
-   let x=MARGIN,y=20,found=false;
-   for(let tries=0;tries<600;tries++){
-     let tx=MARGIN+Math.random()*Math.max(1,w-SIZE-2*MARGIN);
-     let ty=20+Math.random()*Math.max(1,h-SIZE-45);
-     if(!blocked(tx,ty)){x=tx;y=ty;found=true;break}
+   let c=colors.find(x=>x.id===d.dataset.color),
+       n=1+Math.floor(Math.random()*6);
+   total+=n;
+   d.innerHTML='';
+   d.appendChild(face(n,c));
+
+   let cx=w/2, cy=h/2, found=false;
+   for(let tries=0;tries<1200;tries++){
+     let tx=MARGIN+Math.random()*Math.max(1,w-2*MARGIN);
+     let ty=MARGIN+Math.random()*Math.max(1,h-2*MARGIN-20);
+     if(!blocked(tx,ty)){cx=tx;cy=ty;found=true;break;}
    }
-   if(!found){outer:for(let ty=20;ty<=h-SIZE-45;ty+=SIZE+GAP)for(let tx=MARGIN;tx<=w-SIZE-MARGIN;tx+=SIZE+GAP)if(!blocked(tx,ty)){x=tx;y=ty;break outer}}
-   placed.push({x,y});
-   let a=Math.floor(Math.random()*360);d.style.left=x+'px';d.style.top=y+'px';d.style.transform=`rotate(${a}deg) scale(.9)`;
+
+   // Fallback scan; intended maximum is six dice.
+   if(!found){
+     outer:
+     for(let ty=MARGIN;ty<=h-MARGIN;ty+=MIN_DIST)
+       for(let tx=MARGIN;tx<=w-MARGIN;tx+=MIN_DIST)
+         if(!blocked(tx,ty)){cx=tx;cy=ty;found=true;break outer;}
+   }
+
+   placed.push({cx,cy});
+   let x=cx-HALF, y=cy-HALF, a=Math.floor(Math.random()*360);
+   d.style.left=x+'px';
+   d.style.top=y+'px';
+   d.style.transform=`rotate(${a}deg) scale(.9)`;
    requestAnimationFrame(()=>d.style.transform=`rotate(${a+360}deg) scale(1)`);
  });
- sum.textContent=total;if(cfg.vibrate&&navigator.vibrate)navigator.vibrate(35)
+ sum.textContent=total;
+ if(cfg.vibrate&&navigator.vibrate)navigator.vibrate(35)
 }
 buildRows();roll();
 if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js');
