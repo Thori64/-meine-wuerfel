@@ -1,106 +1,12 @@
-<!doctype html>
-<html lang="de">
-<head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
-<meta name="theme-color" content="#8b5a2b">
-<link rel="manifest" href="manifest.webmanifest">
-<link rel="apple-touch-icon" href="icon.svg">
-<title>Meine Würfel</title>
-<style>
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0;height:100%;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:white;overflow:hidden}
-body{background:#8a5a32;background-image:linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(rgba(0,0,0,.03),rgba(255,255,255,.02));background-size:64px 100%,100% 9px}
-#top{position:fixed;top:max(14px,env(safe-area-inset-top));left:18px;right:18px;display:flex;justify-content:space-between;z-index:5}
-.icon{border:0;background:rgba(0,0,0,.16);color:#fff;border-radius:14px;width:48px;height:48px;font-size:25px}
-#board{position:absolute;inset:75px 0 0;touch-action:manipulation}
-#sum{position:absolute;left:50%;top:48%;transform:translate(-50%,-50%);font-size:86px;font-weight:300;text-shadow:0 2px 5px #0008;pointer-events:none}
-.die{position:absolute;width:86px;height:86px;border-radius:15px;box-shadow:0 7px 12px #0007,inset 0 2px 3px #fff7;transition:left .38s cubic-bezier(.2,.8,.2,1),top .38s cubic-bezier(.2,.8,.2,1),transform .38s}
-.face{width:100%;height:100%;position:relative;border-radius:15px}
-.pip{position:absolute;width:13px;height:13px;border-radius:50%;background:#222;transform:translate(-50%,-50%);box-shadow:inset 0 1px 2px #0008}
-#settings{position:fixed;inset:0;background:#f2f2f7;color:#111;z-index:10;display:none;overflow:auto;padding-bottom:30px}
-#settings.open{display:block}.bar{height:calc(58px + env(safe-area-inset-top));padding-top:env(safe-area-inset-top);display:flex;align-items:center;justify-content:space-between;padding-left:18px;padding-right:18px;background:#fff;border-bottom:1px solid #ddd}
-.bar h2{font-size:20px;margin:0}.done{border:0;background:none;color:#007aff;font-size:18px;font-weight:600}
-.panel{margin:22px 16px;background:white;border-radius:14px;overflow:hidden}
-.row{height:61px;display:flex;align-items:center;padding:0 14px;border-bottom:1px solid #eee}.row:last-child{border:0}
-.swatch{width:32px;height:32px;border-radius:8px;margin-right:13px;border:1px solid #bbb}.name{flex:1;font-size:18px}
-.step{display:flex;align-items:center;gap:15px}.step button{width:35px;height:35px;border:0;border-radius:50%;font-size:25px;line-height:30px;background:#e9e9ed}.count{width:24px;text-align:center;font-size:18px}
-.hint{color:#666;padding:0 21px;font-size:14px}.switchrow{justify-content:space-between}
-input[type=checkbox]{width:24px;height:24px}
-</style>
-</head>
-<body>
-<div id="top"><button class="icon" id="gear">⚙︎</button><button class="icon" id="rollBtn">↻</button></div>
-<div id="board"><div id="sum">0</div></div>
-<div id="settings">
- <div class="bar"><h2>Würfel</h2><button class="done" id="done">Fertig</button></div>
- <div class="panel" id="colorRows"></div>
- <p class="hint">Tippe auf +/− und stelle genau die Farbkombination ein, die du brauchst. Tippe anschließend auf die Spielfläche zum Würfeln.</p>
- <div class="panel">
-   <label class="row switchrow"><span>Vibration beim Würfeln</span><input id="vibrate" type="checkbox"></label>
- </div>
-</div>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no"><meta name="theme-color" content="#8a5a32"><link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icon.svg"><title>Qwixx Würfel</title><style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0;height:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#fff}body{background:#8a5a32;background-image:linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(rgba(0,0,0,.03),rgba(255,255,255,.02));background-size:64px 100%,100% 9px}#board{position:fixed;inset:0;padding-top:max(105px,calc(env(safe-area-inset-top) + 70px));padding-bottom:max(35px,env(safe-area-inset-bottom));display:grid;grid-template-rows:repeat(3,1fr);align-items:center}.row{display:flex;justify-content:center;gap:62px;align-items:center}.die{width:108px;height:108px;border-radius:21px;box-shadow:0 9px 15px #0008,inset 0 2px 4px #fff7;transition:transform .32s,opacity .25s;touch-action:manipulation;user-select:none;-webkit-user-select:none}.face{width:100%;height:100%;position:relative;border-radius:21px}.pip{position:absolute;width:17px;height:17px;border-radius:50%;transform:translate(-50%,-50%);box-shadow:inset 0 1px 2px #0008}.die.removed{opacity:0;pointer-events:none}#newGame{position:fixed;right:24px;top:max(18px,env(safe-area-inset-top));z-index:5;border:0;background:rgba(0,0,0,.18);color:#fff;border-radius:16px;height:54px;padding:0 18px;font-size:17px;font-weight:650}#hint{position:fixed;left:50%;bottom:max(14px,env(safe-area-inset-bottom));transform:translateX(-50%);font-size:13px;opacity:.62;white-space:nowrap}#toast{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);background:#111d;padding:13px 18px;border-radius:14px;font-size:17px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:20}#toast.show{opacity:1}@media(max-width:390px){.die{width:98px;height:98px}.row{gap:48px}.pip{width:16px;height:16px}}</style></head><body>
+<button id="newGame">Neustart</button><div id="board"><div class="row"><div class="die" data-id="white1"></div><div class="die" data-id="white2"></div></div><div class="row"><div class="die color" data-id="red"></div><div class="die color" data-id="yellow"></div></div><div class="row"><div class="die color" data-id="green"></div><div class="die color" data-id="blue"></div></div></div><div id="hint">Tippen = würfeln · Farbwürfel lange halten = herausnehmen</div><div id="toast"></div>
 <script>
-const colors=[
- {id:'white',name:'Weiß',hex:'#f5f4ed',pip:'#222'},
- {id:'red',name:'Rot',hex:'#e31b23',pip:'#fff'},
- {id:'yellow',name:'Gelb',hex:'#ffd51f',pip:'#222'},
- {id:'green',name:'Grün',hex:'#18a84a',pip:'#fff'},
- {id:'blue',name:'Blau',hex:'#1769d2',pip:'#fff'},
- {id:'black',name:'Schwarz',hex:'#202124',pip:'#fff'}
-];
-let cfg=JSON.parse(localStorage.getItem('diceCfg')||'null')||{white:2,red:1,yellow:1,green:1,blue:1,black:0,vibrate:true};
-const board=document.querySelector('#board'), sum=document.querySelector('#sum'), rows=document.querySelector('#colorRows');
-function save(){localStorage.setItem('diceCfg',JSON.stringify(cfg))}
-function buildRows(){rows.innerHTML='';colors.forEach(c=>{let r=document.createElement('div');r.className='row';r.innerHTML=`<span class="swatch" style="background:${c.hex}"></span><span class="name">${c.name}</span><span class="step"><button data-id="${c.id}" data-d="-1">−</button><span class="count" id="n-${c.id}">${cfg[c.id]||0}</span><button data-id="${c.id}" data-d="1">+</button></span>`;rows.appendChild(r)})}
-rows.addEventListener('click',e=>{if(e.target.tagName!='BUTTON')return;let id=e.target.dataset.id,d=+e.target.dataset.d;cfg[id]=Math.max(0,Math.min(10,(cfg[id]||0)+d));document.querySelector('#n-'+id).textContent=cfg[id];save()});
-document.querySelector('#vibrate').checked=cfg.vibrate!==false;
-document.querySelector('#vibrate').onchange=e=>{cfg.vibrate=e.target.checked;save()};
-document.querySelector('#gear').onclick=()=>document.querySelector('#settings').classList.add('open');
-document.querySelector('#done').onclick=()=>{document.querySelector('#settings').classList.remove('open');roll()};
-document.querySelector('#rollBtn').onclick=e=>{e.stopPropagation();roll()};
-board.onclick=roll;
-const pos={1:[[50,50]],2:[[28,28],[72,72]],3:[[28,28],[50,50],[72,72]],4:[[28,28],[72,28],[28,72],[72,72]],5:[[28,28],[72,28],[50,50],[28,72],[72,72]],6:[[28,25],[72,25],[28,50],[72,50],[28,75],[72,75]]};
-function face(n,c){let f=document.createElement('div');f.className='face';f.style.background=c.hex;pos[n].forEach(([x,y])=>{let p=document.createElement('i');p.className='pip';p.style.left=x+'%';p.style.top=y+'%';p.style.background=c.pip;f.appendChild(p)});return f}
-function makeDice(){document.querySelectorAll('.die').forEach(x=>x.remove());let out=[];colors.forEach(c=>{for(let i=0;i<(cfg[c.id]||0);i++){let d=document.createElement('div');d.className='die';d.dataset.color=c.id;d.appendChild(face(1,c));board.appendChild(d);out.push(d)}});return out}
-function roll(){
- let dice=makeDice(), total=0, w=innerWidth, h=board.clientHeight;
- const SIZE=86;
-
- // Six separate zones around the total. With max. 6 dice they can never overlap.
- let slots=[
-   {x:.18,y:.16},{x:.50,y:.16},{x:.82,y:.16},
-   {x:.18,y:.76},{x:.50,y:.82},{x:.82,y:.76}
- ];
-
- // Randomize which die lands in which zone.
- for(let i=slots.length-1;i>0;i--){
-   let j=Math.floor(Math.random()*(i+1));
-   [slots[i],slots[j]]=[slots[j],slots[i]];
- }
-
- dice.forEach((d,i)=>{
-   let c=colors.find(x=>x.id===d.dataset.color),
-       n=1+Math.floor(Math.random()*6);
-   total+=n;
-   d.innerHTML='';
-   d.appendChild(face(n,c));
-
-   let s=slots[i % slots.length];
-   // Small random movement inside each safe zone.
-   let jitterX=(Math.random()-.5)*24;
-   let jitterY=(Math.random()-.5)*24;
-   let x=Math.max(12,Math.min(w-SIZE-12,w*s.x-SIZE/2+jitterX));
-   let y=Math.max(18,Math.min(h-SIZE-35,h*s.y-SIZE/2+jitterY));
-   let a=-28+Math.random()*56;
-
-   d.style.left=x+'px';
-   d.style.top=y+'px';
-   d.style.transform=`rotate(${a-180}deg) scale(.88)`;
-   requestAnimationFrame(()=>d.style.transform=`rotate(${a}deg) scale(1)`);
- });
- sum.textContent=total;
- if(cfg.vibrate&&navigator.vibrate)navigator.vibrate(35)
-}
-buildRows();roll();
-if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js');
-</script>
-</body></html>
+const C={white1:{hex:'#f5f4ed',pip:'#222',name:'Weiß'},white2:{hex:'#f5f4ed',pip:'#222',name:'Weiß'},red:{hex:'#ed1c24',pip:'#fff',name:'Rot'},yellow:{hex:'#ffd21c',pip:'#222',name:'Gelb'},green:{hex:'#16aa4b',pip:'#fff',name:'Grün'},blue:{hex:'#176fd1',pip:'#fff',name:'Blau'}};const P={1:[[50,50]],2:[[28,28],[72,72]],3:[[28,28],[50,50],[72,72]],4:[[28,28],[72,28],[28,72],[72,72]],5:[[28,28],[72,28],[50,50],[28,72],[72,72]],6:[[28,25],[72,25],[28,50],[72,50],[28,75],[72,75]]};let removed=JSON.parse(localStorage.getItem('qwixxRemoved')||'[]'),longPress=false,timer=null;
+function face(n,c){let f=document.createElement('div');f.className='face';f.style.background=c.hex;P[n].forEach(([x,y])=>{let p=document.createElement('i');p.className='pip';p.style.left=x+'%';p.style.top=y+'%';p.style.background=c.pip;f.appendChild(p)});return f}
+function state(){document.querySelectorAll('.die').forEach(d=>d.classList.toggle('removed',removed.includes(d.dataset.id)))}
+function roll(){if(longPress){longPress=false;return}document.querySelectorAll('.die:not(.removed)').forEach(d=>{let n=1+Math.floor(Math.random()*6),c=C[d.dataset.id],a=-18+Math.random()*36;d.innerHTML='';d.appendChild(face(n,c));d.style.transform=`rotate(${a+300}deg) scale(.88)`;requestAnimationFrame(()=>d.style.transform=`rotate(${a}deg) scale(1)`)});if(navigator.vibrate)navigator.vibrate(30)}
+function toast(s){let t=document.querySelector('#toast');t.textContent=s;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),900)}
+document.querySelectorAll('.die').forEach(d=>{let c=C[d.dataset.id];d.appendChild(face(1+Math.floor(Math.random()*6),c));if(d.classList.contains('color')){let start=e=>{e.preventDefault();longPress=false;timer=setTimeout(()=>{longPress=true;if(!removed.includes(d.dataset.id)){removed.push(d.dataset.id);localStorage.setItem('qwixxRemoved',JSON.stringify(removed));state();if(navigator.vibrate)navigator.vibrate([45,35,45]);toast(c.name+' herausgenommen')}},850)},stop=()=>{clearTimeout(timer);timer=null};d.addEventListener('touchstart',start,{passive:false});d.addEventListener('touchend',stop);d.addEventListener('touchcancel',stop)}});
+document.querySelector('#board').addEventListener('click',()=>{if(!longPress)roll();else longPress=false});document.querySelector('#newGame').onclick=e=>{e.stopPropagation();if(confirm('Neues Spiel starten? Alle Farbwürfel werden wieder eingesetzt.')){removed=[];localStorage.setItem('qwixxRemoved','[]');state();roll()}};state();if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js');
+</script></body></html>
